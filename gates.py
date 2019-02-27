@@ -52,6 +52,8 @@ class Gate:
             raise Exception("Pin A has no input signal")
 
 
+
+
 class UnaryGate(Gate):
     # Gate with single pin
     def __init__(self, label):
@@ -155,7 +157,6 @@ class NAND(BinaryGate):
         a.set_pin("A", self.pins["A"].get_state())
         a.set_pin("B", self.pins["B"].get_state())
         a.perform_logic()
-        print(a.get_output_signal().label)
         c = Connector(a.pins["OUT"], n.pins["A"])
         c.connect()
         n.perform_logic()

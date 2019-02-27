@@ -1,19 +1,34 @@
-from gates import Connector, AND, OR, NOT, H, L
+from gates import Connector, AND, OR, NOT, NAND, NOR, H, L
 
 
+# Y =  ~(~(A + B) * (A * B))
+
+A = H
+B = H
+
+# C = A (NOR) B
+nor1 = NOR()
+nor1.set_pin("A", A)
+nor1.set_pin("B", B)
+nor1.perform_logic()
+
+C = nor1.get_output_signal()
+
+
+# D = A (AND) B
 and1 = AND()
-not1 = NOT()
-or1 = OR()
-
-and1.set_pin("A", H)
-and1.set_pin("B", H)
-
+and1.set_pin("A", A)
+and1.set_pin("B", B)
 and1.perform_logic()
 
-c1 = Connector(and1.pins["OUT"], not1.pins["A"])
-c1.connect()
+D = and1.get_output_signal()
 
-not1.perform_logic()
+# Y = C (NAND) D
+nand1 = NAND()
+nand1.set_pin("A", C)
+nand1.set_pin("B", D)
+nand1.perform_logic()
 
-Y = not1.get_output_signal()
+Y = nand1.get_output_signal()
+
 print(Y.label)

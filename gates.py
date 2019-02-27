@@ -2,8 +2,10 @@ class Signal:
     def __init__(self, value, label):
         self.value = value
         self.label = label
-H = Signal(1, "High") # High
-L = Signal(0, "Low") # Low
+
+
+H = Signal(1, "High")  # High
+L = Signal(0, "Low")  # Low
 
 
 # ---
@@ -44,8 +46,8 @@ class Gate:
         return self.out_pin.get_state()
 
     def perform_logic(self):
-        if self.pin1.isSet:
-            self.out_pin.set_state(self.logic())
+        if self.pins["A"].isSet:
+            self.pins["OUT"].set_state(self.logic())
         else:
             raise Exception("Pin A has no input signal")
 
@@ -57,11 +59,11 @@ class UnaryGate(Gate):
         self.pin1 = Pin("A")
         self.pins.update({"A": self.pin1})
 
-    def set_pin(self, label, signal):
-        if label == "A":
-            self.pin1.set_state(signal)
-        else:
-            raise Exception("Gate has only one pin: A")
+    def set_pin_state(self, label, signal):
+        try:
+            self.pins[label].set_state(signal)
+        except:
+            raise Exception("%s Gate has only one pin: A" % self.label)
 
 
 class BinaryGate(Gate):
@@ -74,12 +76,10 @@ class BinaryGate(Gate):
         self.pins.update({"B": self.pin2})
 
     def set_pin(self, label, signal):
-        if label == "A":
-            self.pin1.set_state(signal)
-        elif label == "B":
-            self.pin2.set_state(signal)
-        else:
-            raise Exception("Gate has only two pins: A and B")
+        try:
+            self.pins[label].set_state(signal)
+        except:
+            raise Exception("%s Gate has only two pins: A and B" % self.label)
 
 
 # ---
@@ -92,7 +92,7 @@ class Connector:
     def connect(self):
         if self.from_pin.isSet:
             sig = self.from_pin.get_state()
-            self.pin2.set_state(sig)
+            self.to_pin.set_state(sig)
         else:
             raise Exception("State of from-pin is not set. ")
 
@@ -104,7 +104,7 @@ class NOT(UnaryGate):
         UnaryGate.__init__(self, "NOT")
 
     def logic(self):
-        if self.pin1.get_state() == H:
+        if self.pins["A"].get_state() == H:
             return L
         else:
             return H
@@ -115,7 +115,7 @@ class AND(BinaryGate):
         BinaryGate.__init__(self, "AND")
 
     def logic(self):
-        if self.pin1.get_state() == H and self.pin2.get_state() == H:
+        if self.pins["A"].get_state() == H and self.pins["B"].get_state() == H:
             return H
         else:
             return L
@@ -126,25 +126,68 @@ class OR(BinaryGate):
         BinaryGate.__init__(self, "OR")
 
     def logic(self):
-        if self.pin1.get_state() == H or self.pin2.get_state() == H:
+        if self.pins["A"].get_state() == H or self.pins["B"].get_state() == H:
             return H
         else:
             return L
 
 
+class EXOR(BinaryGate):
+    def __init__(self):
+        BinaryGate.__init__(self, "EX-OR")
 
-if __name__ == '__nain__':
-    and1 = AND()
-    not1 = NOT()
-    or1 = OR()
+    def logic(self):
+        if self.pins["A"].get_state() == H or self.pins["B"].get_state() == H:
+            if not (self.pins["A"].get_state() == H and self.pins["B"].get_state() == H):
+                return H
+        else:
+            return L
 
-    and1.set_pin("A", H)
-    and1.set_pin("B", H)
 
-    and1.perform_logic()
+class NAND(BinaryGate):
+    def __init__(self):
+        BinaryGate.__init__(self, "NAND")
 
-    c1 = Connector(and1.pins["OUT"], not1.pins["A"])
-    c1.connect()
+    def logic(self):
+        # NAND is NOT gate connected to output of AND gate
+        a = AND()
+        n = NOT()
+        a.set_pin("A", self.pins["A"].get_state())
+        a.set_pin("B", self.pins["B"].get_state())
+        a.perform_logic()
+        print(a.get_output_signal().label)
+        c = Connector(a.pins["OUT"], n.pins["A"])
+        c.connect()
+        n.perform_logic()
+        return n.get_output_signal()
 
-    print(not1.pins["A"].isSet)
-    print("A")
+
+class NOR(BinaryGate):
+    def __init__(self):
+        BinaryGate.__init__(self, "NOR")
+
+    def logic(self):
+        # NOR is NOT gate connected to output of OR gate
+        o = OR()
+        n = NOT()
+        o.set_pin("A", self.pins["A"].get_state())
+        o.set_pin("B", self.pins["B"].get_state())
+        o.perform_logic()
+        c = Connector(o.pins["OUT"], n.pins["A"])
+        c.connect()
+        n.perform_logic()
+
+
+class EXNOR(BinaryGate):
+    def __init__(self):
+        BinaryGate.__init__(self, "EX-NOR")
+
+    def logic(self):
+        eo = EXOR()
+        n = NOT()
+        eo.set_pin("A", self.pins["A"].get_state())
+        eo.set_pin("B", self.pins["B"].get_state())
+        eo.perform_logic()
+        c = Connector(eo.pins["OUT"], n.pins["A"])
+        c.connect()
+        n.perform_logic()

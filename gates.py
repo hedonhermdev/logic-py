@@ -35,7 +35,7 @@ class Gate:
     def __init__(self, label):
         self.label = label
         self.out_pin = Pin("OUT")
-        self.pins = []
+        self.pins = {"OUT": self.out_pin}
 
     def logic(self):
         pass
@@ -55,7 +55,7 @@ class UnaryGate(Gate):
     def __init__(self, label):
         Gate.__init__(self, label)
         self.pin1 = Pin("A")
-        self.pins.append(self.pin1)
+        self.pins.update({"A": self.pin1})
 
     def set_pin(self, label, signal):
         if label == "A":
@@ -70,8 +70,8 @@ class BinaryGate(Gate):
         Gate.__init__(self, label)
         self.pin1 = Pin("A")
         self.pin2 = Pin("B")
-        self.pins.append(self.pin1)
-        self.pins.append(self.pin2)
+        self.pins.update({"A": self.pin1})
+        self.pins.update({"B": self.pin2})
 
     def set_pin(self, label, signal):
         if label == "A":
@@ -132,3 +132,19 @@ class OR(BinaryGate):
             return L
 
 
+
+if __name__ == '__nain__':
+    and1 = AND()
+    not1 = NOT()
+    or1 = OR()
+
+    and1.set_pin("A", H)
+    and1.set_pin("B", H)
+
+    and1.perform_logic()
+
+    c1 = Connector(and1.pins["OUT"], not1.pins["A"])
+    c1.connect()
+
+    print(not1.pins["A"].isSet)
+    print("A")

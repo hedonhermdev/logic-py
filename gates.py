@@ -16,7 +16,7 @@ class Pin:
         self.label = label
         self.state = None
         self.isSet = False
-
+        self.isConnected = False
     def set_state(self, signal):
         # Set state of pin as H or L
         self.isSet = True
@@ -90,17 +90,29 @@ class Connector:
     def __init__(self, from_pin, to_pin):
         self.from_pin = from_pin
         self.to_pin = to_pin
+        self.from_pin.isConnected = True
+        self.to_pin.isConnected = True
 
-    def connect(self):
+    def transfer_signal(self):
         if self.from_pin.isSet:
             sig = self.from_pin.get_state()
             self.to_pin.set_state(sig)
+
         else:
             raise Exception("State of from-pin is not set. ")
 
 
 # ---
 # The Gates
+
+class Buffer(UnaryGate):
+    def __init__(self, label):
+        UnaryGate.__init__(self, label)
+
+    def logic(self):
+        return self.pins["A"].get_state()
+
+
 class NOT(UnaryGate):
     def __init__(self):
         UnaryGate.__init__(self, "NOT")

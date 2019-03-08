@@ -21,3 +21,4 @@ adder.new_output_connection("EXOR1", 'SUM')
 adder.give_inputs({'IN A': comps.H, 'IN B': comps.H})
 
 print(adder.get_output())
+

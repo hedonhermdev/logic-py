@@ -37,10 +37,10 @@ fulladder.new_output_connection('OR 1', 'C-OUT')
 
 # ------------------------------------------------------------
 # Execution
-(a, b, c) = [H, H, H]
+a,b, c = [H if i == "H" else L if i == "L" else None for i in input("INPUTS: ")]
 
 fulladder.give_inputs({'A': a, 'B': b, 'C-IN': c})
 
 OUT = fulladder.get_output()
 
-print(OUT)
+[print("%s : %s" % (x, y)) for x, y in zip(OUT.keys(), OUT.values())]

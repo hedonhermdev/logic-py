@@ -32,10 +32,14 @@ multiplexer.new_output_connection('OR 1', 'Y')
 
 
 # EXECUTION------------------------
+print("MULTIPLEXER")
+print("EQUATION: Y = [ A (AND) [(NOT)X] ] (OR) [ B (AND) X ]")
 
 # Inputs
-
-a, b, x = [H if i == "H" else L if i == "L" else None for i in input("INPUTS: ")]
+print("INPUTS: ")
+a = input("A > ")
+b = input("B > ")
+x = input("X > ")
 
 multiplexer.give_inputs({'A': a, 'B': b, 'X': x})
 

@@ -37,7 +37,12 @@ fulladder.new_output_connection('OR 1', 'C-OUT')
 
 # ------------------------------------------------------------
 # Execution
-a,b, c = [H if i == "H" else L if i == "L" else None for i in input("INPUTS: ")]
+print("FULL ADDER")
+print("EQUATION: S = (A XOR B XOR Cin), Cout = [(A AND B) OR (B AND Cin) OR (Cin AND A)]")
+print("INPUTS:")
+a = input("A > ")
+b = input("B > ")
+c = input("Cin > ")
 
 fulladder.give_inputs({'A': a, 'B': b, 'C-IN': c})
 
